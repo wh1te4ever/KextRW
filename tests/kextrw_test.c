@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-// The following offsets are specific to my MacBook Pro M4 running 24C5089c
+// The following offsets are specific to Apple Virtual Machine 1 M3 running 24D81
 
 /*
 Note: I have experienced some issues with calling some pmap functions (e.g. `pmap_enter_options_addr`), where my Mac seemingly panics, but there is no panic log once it powers back on. I have no idea what causes this, it could be something to do with SPTM.
@@ -20,7 +20,7 @@ Note: I have experienced some issues with calling some pmap functions (e.g. `pma
 #define PMAP_ENTER_OPTIONS_ADDR kslide(0xFFFFFE0008869DAC)
 #define PMAP_MAP_BLOCK_ADDR     kslide(0xFFFFFE000887458C)
 #define PMAP_NEST               kslide(0xFFFFFE0008876388)
-#define PHYSTOKV                kslide(0xFFFFFE000888F29C)
+#define PHYSTOKV                kslide(0xFFFFFE0007ECC81C)
 #define PANIC                   kslide(0xFFFFFE0008F99D88)
 #define KAUTH_CRED_PROC_REF     kslide(0xFFFFFE0008C30EF4)
 #define KAUTH_CRED_UNREF        kslide(0xFFFFFE0008C32188)
@@ -129,8 +129,6 @@ int main(void) {
     printf("Kernel base (PA): 0x%llX\n", kvtophys(kernelBase));
     printf("Kernel slide: 0x%llX\n", kslide(0));
 
-    printf("kread32(0x%llX) -> 0x%X\n", kernelBase, kread32(kernelBase));
-
     uint64_t alloc = kalloc(0x100);
     printf("kalloc(0x100) -> 0x%llX\n", alloc);
     kfree(alloc, 0x100);
@@ -138,32 +136,32 @@ int main(void) {
     uint64_t kbasePA = kvtophys(kernelBase);
     printf("kvtophys(0x%llX) -> 0x%llX\n", kernelBase, kbasePA);
     printf("physread32(0x%llX) -> 0x%X\n", kbasePA, physread32(kbasePA));
-
+    
     printf("phystokv(0x%llX) -> 0x%llX\n", kbasePA, kcall(PHYSTOKV, (uint64_t []){ kbasePA}, 1));
-
-    kernproc = kreadptr(KERNPROC);
-    uint64_t kernel_task = proc_task(kernproc);
-
-    uint64_t self_proc = proc_find(getpid());
-    uint64_t self_task = proc_task(self_proc);
-    uint64_t self_vm_map = task_map(self_task);
-    uint64_t self_pmap = task_pmap(self_task);
-
-    printf("kernproc: 0x%llX\n", kernproc);
-    printf("kernel_task: 0x%llX\n", kernel_task);
-    printf("Our proc: 0x%llX\n", self_proc);
-    printf("Our task: 0x%llX\n", self_task);
-    printf("Our vm_map: 0x%llX\n", self_vm_map);
-    printf("Our pmap: 0x%llX\n", self_pmap);
-
-    uint64_t called_kalloc = kcall(KALLOC_EXTERNAL, (uint64_t []){ 0x100 }, 1);
-    printf("kcall: kalloc_external(0x100) -> 0x%llX\n", called_kalloc);
-    if (called_kalloc) {
-        kcall(KFREE_EXTERNAL, (uint64_t []){ called_kalloc, 0x100 }, 2);
-    }
-
-    uint64_t kobject = task_get_ipc_port_kobject(self_task, mach_task_self());
-    printf("mach_task_self() kobject: 0x%llX\n", kobject);
+//
+//    kernproc = kreadptr(KERNPROC);
+//    uint64_t kernel_task = proc_task(kernproc);
+//
+//    uint64_t self_proc = proc_find(getpid());
+//    uint64_t self_task = proc_task(self_proc);
+//    uint64_t self_vm_map = task_map(self_task);
+//    uint64_t self_pmap = task_pmap(self_task);
+//
+//    printf("kernproc: 0x%llX\n", kernproc);
+//    printf("kernel_task: 0x%llX\n", kernel_task);
+//    printf("Our proc: 0x%llX\n", self_proc);
+//    printf("Our task: 0x%llX\n", self_task);
+//    printf("Our vm_map: 0x%llX\n", self_vm_map);
+//    printf("Our pmap: 0x%llX\n", self_pmap);
+//
+//    uint64_t called_kalloc = kcall(KALLOC_EXTERNAL, (uint64_t []){ 0x100 }, 1);
+//    printf("kcall: kalloc_external(0x100) -> 0x%llX\n", called_kalloc);
+//    if (called_kalloc) {
+//        kcall(KFREE_EXTERNAL, (uint64_t []){ called_kalloc, 0x100 }, 2);
+//    }
+//
+//    uint64_t kobject = task_get_ipc_port_kobject(self_task, mach_task_self());
+//    printf("mach_task_self() kobject: 0x%llX\n", kobject);
 
     kextrw_deinit();
     return 0;

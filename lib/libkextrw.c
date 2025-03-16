@@ -317,7 +317,7 @@ uint64_t get_kernel_base()
             kernelBase = kernelPage;
             break;
         }
-        kernelPage -= PAGE_SIZE;
+        kernelPage -= 0x1000;
     }
 
     gKernelSlide = kernelBase - STATIC_KERNEL_BASE;
