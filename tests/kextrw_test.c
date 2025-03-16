@@ -159,9 +159,9 @@ int main(void) {
    if (called_kalloc) {
        kcall(KFREE_EXTERNAL, (uint64_t []){ called_kalloc, 0x100 }, 2);
    }
-//
-//    uint64_t kobject = task_get_ipc_port_kobject(self_task, mach_task_self());
-//    printf("mach_task_self() kobject: 0x%llX\n", kobject);
+
+   uint64_t kobject = task_get_ipc_port_kobject(self_task, mach_task_self());
+   printf("mach_task_self() kobject: 0x%llX\n", kobject);
 
     kextrw_deinit();
     return 0;
