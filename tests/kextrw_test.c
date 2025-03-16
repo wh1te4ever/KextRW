@@ -25,8 +25,8 @@ Note: I have experienced some issues with calling some pmap functions (e.g. `pma
 #define KAUTH_CRED_PROC_REF     kslide(0xFFFFFE0008C30EF4)
 #define KAUTH_CRED_UNREF        kslide(0xFFFFFE0008C32188)
 #define ML_SIGN_THREAD_STATE    kslide(0xFFFFFE00086E3874)
-#define KALLOC_EXTERNAL         kslide(0xFFFFFE000873ED64)
-#define KFREE_EXTERNAL          kslide(0xFFFFFE000873F248)
+#define KALLOC_EXTERNAL         kslide(0xFFFFFE0007D96904)
+#define KFREE_EXTERNAL          kslide(0xFFFFFE0007D96dFC)
 
 #define TASK_MAP                kslide(0xFFFFFE00087B1AF8)
 #define TASK_PMAP               kslide(0xFFFFFE00087B1F2C)
@@ -153,12 +153,12 @@ int main(void) {
    printf("Our task: 0x%llX\n", self_task);
    printf("Our vm_map: 0x%llX\n", self_vm_map);
    printf("Our pmap: 0x%llX\n", self_pmap);
-//
-//    uint64_t called_kalloc = kcall(KALLOC_EXTERNAL, (uint64_t []){ 0x100 }, 1);
-//    printf("kcall: kalloc_external(0x100) -> 0x%llX\n", called_kalloc);
-//    if (called_kalloc) {
-//        kcall(KFREE_EXTERNAL, (uint64_t []){ called_kalloc, 0x100 }, 2);
-//    }
+
+   uint64_t called_kalloc = kcall(KALLOC_EXTERNAL, (uint64_t []){ 0x100 }, 1);
+   printf("kcall: kalloc_external(0x100) -> 0x%llX\n", called_kalloc);
+   if (called_kalloc) {
+       kcall(KFREE_EXTERNAL, (uint64_t []){ called_kalloc, 0x100 }, 2);
+   }
 //
 //    uint64_t kobject = task_get_ipc_port_kobject(self_task, mach_task_self());
 //    printf("mach_task_self() kobject: 0x%llX\n", kobject);
