@@ -32,9 +32,9 @@ Note: I have experienced some issues with calling some pmap functions (e.g. `pma
 #define TASK_PMAP               kslide(0xFFFFFE00087B1F2C)
 
 // Kernel constants and variables
-#define KERNPROC                kslide(0xFFFFFE0007CA6F38)
-#define KERNEL_TASK             kslide(0xFFFFFE0007CA5DF0)
-#define TASK_SIZE               kslide(0xFFFFFE000C049520) // proc->task = proc + sizeof(proc)
+#define KERNPROC                kslide(0xFFFFFE00077F4EE0)
+#define KERNEL_TASK             kslide(0xFFFFFE00077EFDB8)
+#define TASK_SIZE               kslide(0xFFFFFE000A5CD3A0) // proc->task = proc + sizeof(proc)
 
 // Kernel structure sizes
 #define size_ipc_entry (0x18)
@@ -138,21 +138,21 @@ int main(void) {
     printf("physread32(0x%llX) -> 0x%X\n", kbasePA, physread32(kbasePA));
     
     printf("phystokv(0x%llX) -> 0x%llX\n", kbasePA, kcall(PHYSTOKV, (uint64_t []){ kbasePA}, 1));
-//
-//    kernproc = kreadptr(KERNPROC);
-//    uint64_t kernel_task = proc_task(kernproc);
-//
-//    uint64_t self_proc = proc_find(getpid());
-//    uint64_t self_task = proc_task(self_proc);
-//    uint64_t self_vm_map = task_map(self_task);
-//    uint64_t self_pmap = task_pmap(self_task);
-//
-//    printf("kernproc: 0x%llX\n", kernproc);
-//    printf("kernel_task: 0x%llX\n", kernel_task);
-//    printf("Our proc: 0x%llX\n", self_proc);
-//    printf("Our task: 0x%llX\n", self_task);
-//    printf("Our vm_map: 0x%llX\n", self_vm_map);
-//    printf("Our pmap: 0x%llX\n", self_pmap);
+
+    kernproc = kreadptr(KERNPROC);
+   uint64_t kernel_task = proc_task(kernproc);
+
+   uint64_t self_proc = proc_find(getpid());
+   uint64_t self_task = proc_task(self_proc);
+   uint64_t self_vm_map = task_map(self_task);
+   uint64_t self_pmap = task_pmap(self_task);
+
+   printf("kernproc: 0x%llX\n", kernproc);
+   printf("kernel_task: 0x%llX\n", kernel_task);
+   printf("Our proc: 0x%llX\n", self_proc);
+   printf("Our task: 0x%llX\n", self_task);
+   printf("Our vm_map: 0x%llX\n", self_vm_map);
+   printf("Our pmap: 0x%llX\n", self_pmap);
 //
 //    uint64_t called_kalloc = kcall(KALLOC_EXTERNAL, (uint64_t []){ 0x100 }, 1);
 //    printf("kcall: kalloc_external(0x100) -> 0x%llX\n", called_kalloc);
