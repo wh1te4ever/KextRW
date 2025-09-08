@@ -40,6 +40,7 @@ IOReturn KextRWUserClient::externalMethod(uint32_t selector, IOExternalMethodArg
         /* 7 */ { (IOExternalMethodAction)&KextRWUserClient::callKernelFunction, 11, 0, 1, 0 },
         /* 8 */ { (IOExternalMethodAction)&KextRWUserClient::kallocBuffer, 1, 0, 1, 0 },
         /* 9 */ { (IOExternalMethodAction)&KextRWUserClient::kfreeBuffer, 2, 0, 1, 0 },
+        /* 10 */ { (IOExternalMethodAction)&KextRWUserClient::readActlrEL1, 0, 0, 1, 0 },
     };
 
     if(selector < sizeof(methods)/sizeof(methods[0]))
