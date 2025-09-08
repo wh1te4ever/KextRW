@@ -19,6 +19,7 @@ private:
     static IOReturn callKernelFunction(KextRWUserClient *client, void *reference, IOExternalMethodArguments *args);
     static IOReturn kallocBuffer(KextRWUserClient *client, void *reference, IOExternalMethodArguments *args);
     static IOReturn kfreeBuffer(KextRWUserClient *client, void *reference, IOExternalMethodArguments *args);
+    static IOReturn readActlrEL1(KextRWUserClient *client, void *reference, IOExternalMethodArguments *args);
 };
 
 #endif // KEXTRWUSERCLIENT_H

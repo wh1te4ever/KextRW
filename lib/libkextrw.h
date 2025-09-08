@@ -54,6 +54,9 @@ uint64_t kvtophys(uint64_t va);
 uint64_t kalloc(uint64_t size);
 void kfree(uint64_t addr, uint64_t size);
 
+/* read ACTLR_EL1 */
+uint64_t read_ACTLR_EL1(void);
+
 /* Utilities */
 uint64_t get_kernel_base();
 

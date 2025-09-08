@@ -123,45 +123,48 @@ int main(void) {
         return 1;
     }
 
+    uint64_t val = read_ACTLR_EL1();
+    printf("ACTLR_EL1: 0x%llX\n", val);
+
     uint64_t kernelBase = get_kernel_base();
 
     printf("Kernel base (VA): 0x%llX\n", kernelBase);
     printf("Kernel base (PA): 0x%llX\n", kvtophys(kernelBase));
     printf("Kernel slide: 0x%llX\n", kslide(0));
 
-    uint64_t alloc = kalloc(0x100);
-    printf("kalloc(0x100) -> 0x%llX\n", alloc);
-    kfree(alloc, 0x100);
+//     uint64_t alloc = kalloc(0x100);
+//     printf("kalloc(0x100) -> 0x%llX\n", alloc);
+//     kfree(alloc, 0x100);
 
-    uint64_t kbasePA = kvtophys(kernelBase);
-    printf("kvtophys(0x%llX) -> 0x%llX\n", kernelBase, kbasePA);
-    printf("physread32(0x%llX) -> 0x%X\n", kbasePA, physread32(kbasePA));
+//     uint64_t kbasePA = kvtophys(kernelBase);
+//     printf("kvtophys(0x%llX) -> 0x%llX\n", kernelBase, kbasePA);
+//     printf("physread32(0x%llX) -> 0x%X\n", kbasePA, physread32(kbasePA));
     
-    printf("phystokv(0x%llX) -> 0x%llX\n", kbasePA, kcall(PHYSTOKV, (uint64_t []){ kbasePA}, 1));
+//     printf("phystokv(0x%llX) -> 0x%llX\n", kbasePA, kcall(PHYSTOKV, (uint64_t []){ kbasePA}, 1));
 
-    kernproc = kreadptr(KERNPROC);
-   uint64_t kernel_task = proc_task(kernproc);
+//     kernproc = kreadptr(KERNPROC);
+//    uint64_t kernel_task = proc_task(kernproc);
 
-   uint64_t self_proc = proc_find(getpid());
-   uint64_t self_task = proc_task(self_proc);
-   uint64_t self_vm_map = task_map(self_task);
-   uint64_t self_pmap = task_pmap(self_task);
+//    uint64_t self_proc = proc_find(getpid());
+//    uint64_t self_task = proc_task(self_proc);
+//    uint64_t self_vm_map = task_map(self_task);
+//    uint64_t self_pmap = task_pmap(self_task);
 
-   printf("kernproc: 0x%llX\n", kernproc);
-   printf("kernel_task: 0x%llX\n", kernel_task);
-   printf("Our proc: 0x%llX\n", self_proc);
-   printf("Our task: 0x%llX\n", self_task);
-   printf("Our vm_map: 0x%llX\n", self_vm_map);
-   printf("Our pmap: 0x%llX\n", self_pmap);
+//    printf("kernproc: 0x%llX\n", kernproc);
+//    printf("kernel_task: 0x%llX\n", kernel_task);
+//    printf("Our proc: 0x%llX\n", self_proc);
+//    printf("Our task: 0x%llX\n", self_task);
+//    printf("Our vm_map: 0x%llX\n", self_vm_map);
+//    printf("Our pmap: 0x%llX\n", self_pmap);
 
-   uint64_t called_kalloc = kcall(KALLOC_EXTERNAL, (uint64_t []){ 0x100 }, 1);
-   printf("kcall: kalloc_external(0x100) -> 0x%llX\n", called_kalloc);
-   if (called_kalloc) {
-       kcall(KFREE_EXTERNAL, (uint64_t []){ called_kalloc, 0x100 }, 2);
-   }
+//    uint64_t called_kalloc = kcall(KALLOC_EXTERNAL, (uint64_t []){ 0x100 }, 1);
+//    printf("kcall: kalloc_external(0x100) -> 0x%llX\n", called_kalloc);
+//    if (called_kalloc) {
+//        kcall(KFREE_EXTERNAL, (uint64_t []){ called_kalloc, 0x100 }, 2);
+//    }
 
-   uint64_t kobject = task_get_ipc_port_kobject(self_task, mach_task_self());
-   printf("mach_task_self() kobject: 0x%llX\n", kobject);
+//    uint64_t kobject = task_get_ipc_port_kobject(self_task, mach_task_self());
+//    printf("mach_task_self() kobject: 0x%llX\n", kobject);
 
     kextrw_deinit();
     return 0;

@@ -250,3 +250,11 @@ IOReturn KextRWUserClient::kfreeBuffer(KextRWUserClient *client, void *reference
     kfree((void*)addr, size);
     return kIOReturnSuccess;
 }
+
+IOReturn KextRWUserClient::readActlrEL1(KextRWUserClient *client, void *reference, IOExternalMethodArguments *args)
+{
+    uint64_t val = 0;
+    asm volatile("mrs %0, ACTLR_EL1" : "=r"(val));
+    args->scalarOutput[0] = val;
+    return kIOReturnSuccess;
+}

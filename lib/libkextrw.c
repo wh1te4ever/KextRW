@@ -101,6 +101,12 @@ static inline kern_return_t kextrw_kfree(io_connect_t client, uint64_t addr, uin
     return IOConnectCallScalarMethod(client, 9, in, 2, NULL, NULL);
 }
 
+static inline kern_return_t kextrw_get_read_ACTLR_EL1(io_connect_t client, uint64_t *out)
+{
+    uint32_t outCnt = 1; 
+    return IOConnectCallScalarMethod(client, 10, NULL, 0, out, &outCnt);
+}
+
 void kextrw_close(io_connect_t client)
 {
     IOServiceClose(client);
@@ -300,6 +306,13 @@ uint64_t kalloc(uint64_t size)
 void kfree(uint64_t addr, uint64_t size)
 {
     kextrw_kfree(gClient, addr, size);
+}
+
+uint64_t read_ACTLR_EL1(void)
+{
+    uint64_t val = 0;
+    kextrw_get_read_ACTLR_EL1(gClient, &val);
+    return val;
 }
 
 /* Utilities */
