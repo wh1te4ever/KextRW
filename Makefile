@@ -43,6 +43,6 @@ install: all
 	sudo cp -r $(TARGET).kext /Library/Extensions
 
 clean:
-	rm -rf $(TARGET).kext $(BUILD)
+	sudo rm -rf $(TARGET).kext $(BUILD)
 	$(MAKE) -C $(TESTS) clean
 	$(MAKE) -C $(LIBDIR) clean

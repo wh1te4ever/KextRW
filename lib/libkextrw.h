@@ -8,8 +8,8 @@ extern uint64_t gKernelBase, gKernelSlide;
 
 // gKernelSlide matches the kernel slide in a panic log,
 // but we need to use the KernelCache slide, which is
-// always 0x8000 less than the normal kernel slide.
-#define kslide(x) (x + gKernelSlide - 0x8000)
+// always 0x110000 less than the normal kernel slide.
+#define kslide(x) (x + gKernelSlide - 0x110000)
 
 /* Initialisation and deinitialisation */
 int kextrw_init(void);
