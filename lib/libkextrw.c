@@ -191,14 +191,20 @@ uint64_t kreadptr(uint64_t addr)
     return xpaci(kread64(addr));
 }
 
-// macOS 15.3 KDK, ipc_entry_lookup
-uint64_t kreadptr_smr(uint64_t addr)
+// Tuned smr_base and t1sz_boot for VirtualMac2,1 / macOS27.0b1;
+uint64_t kread_smrptr(uint64_t va)
 {
-    uint64_t ptr = kreadptr(addr);
-    if ((ptr & 0x400000000000LL) != 0) {
-        return ptr & 0xFFFFFFFFFFFFFFE0LL;
+    uint64_t value = kreadptr(va);
+
+    uint64_t smr_base = 2;
+    uint64_t t1sz_boot = 0x11;
+
+    uint64_t bits = (smr_base << (62-t1sz_boot));
+    
+    if((value & bits) == 0) {
+        return ((value & (0xFFFFFFFFFFFFC000LL & ~bits)) | bits);
     }
-    return ptr;
+    return (value & 0xFFFFFFFFFFFFFFE0);
 }
 
 /* Physical read/write */

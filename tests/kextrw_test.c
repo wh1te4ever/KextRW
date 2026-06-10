@@ -1,4 +1,4 @@
-#include <libkextrw.h>
+#include "../lib/libkextrw.h"
 
 #include <mach-o/loader.h>
 #include <mach/arm/vm_param.h>
@@ -10,34 +10,27 @@
 #include <unistd.h>
 #include <pthread.h>
 
-// The following offsets are specific to my MacBook Pro M4 running 24C5089c
+// The following offsets are specific to Apple Virtual Machine 1(VirtualMac2,1) running macOS 27.0b1(26A5353q)
 
 /*
 Note: I have experienced some issues with calling some pmap functions (e.g. `pmap_enter_options_addr`), where my Mac seemingly panics, but there is no panic log once it powers back on. I have no idea what causes this, it could be something to do with SPTM.
 */
 
 // Kernel functions
-#define PMAP_ENTER_OPTIONS_ADDR kslide(0xFFFFFE0008869DAC)
-#define PMAP_MAP_BLOCK_ADDR     kslide(0xFFFFFE000887458C)
-#define PMAP_NEST               kslide(0xFFFFFE0008876388)
-#define PHYSTOKV                kslide(0xFFFFFE000888F29C)
-#define PANIC                   kslide(0xFFFFFE0008F99D88)
-#define KAUTH_CRED_PROC_REF     kslide(0xFFFFFE0008C30EF4)
-#define KAUTH_CRED_UNREF        kslide(0xFFFFFE0008C32188)
-#define ML_SIGN_THREAD_STATE    kslide(0xFFFFFE00086E3874)
-#define KALLOC_EXTERNAL         kslide(0xFFFFFE000873ED64)
-#define KFREE_EXTERNAL          kslide(0xFFFFFE000873F248)
-
-#define TASK_MAP                kslide(0xFFFFFE00087B1AF8)
-#define TASK_PMAP               kslide(0xFFFFFE00087B1F2C)
+#define PHYSTOKV                kslide(0xFFFFFE00074C8710+0x2b08000)
+#define PANIC                   kslide(0xFFFFFE0007C5142C+0x2b08000)
+#define KALLOC_EXTERNAL         kslide(0xFFFFFE0007368FA8+0x2b08000)
+#define KFREE_EXTERNAL          kslide(0xFFFFFE00073695A0+0x2b08000)
 
 // Kernel constants and variables
-#define KERNPROC                kslide(0xFFFFFE0007CA6F38)
-#define KERNEL_TASK             kslide(0xFFFFFE0007CA5DF0)
-#define TASK_SIZE               kslide(0xFFFFFE000C049520) // proc->task = proc + sizeof(proc)
+#define KERNPROC                kslide(0xFFFFFE00072BFD88+0x6fc000)
+#define TASK_SIZE               kslide(0xFFFFFE0007CA6128+0x2dfc000) // proc->task = proc + sizeof(proc)
 
 // Kernel structure sizes
 #define size_ipc_entry (0x18)
+
+// TEMPORARY KWRITE GADGET
+#define STR_X1_X0_RET           kslide(0xFFFFFE000751B3B8+0x2b08000)
 
 #define ksizeof(type) size_##type
 
@@ -46,13 +39,13 @@ Note: I have experienced some issues with calling some pmap functions (e.g. `pma
 #define off_proc_next               (0x0)
 #define off_proc_prev               (0x8)
 #define off_task_map                (0x28)
-#define off_vm_map_pmap             (0x40)
+#define off_vm_map_pmap             (0x58)
 #define off_thread_contextData      (0x100)
 #define off_thread_cpudatap         (0x1B0)
-#define off_ipc_space_table         (0x20)
-#define off_task_itk_space          (0x320)
+#define off_ipc_space_table         (0x48)
+#define off_task_itk_space          (0x318)
 #define off_ipc_entry_object        (0x0)
-#define off_ipc_port_kobject        (0x48)
+#define off_ipc_port_kobject        (0x50)
 #define off_cpudatap_cpu_int_state  (0xD0)
 
 #define koffsetof(type, field) off_##type##_##field
@@ -117,6 +110,10 @@ static uint64_t task_get_ipc_port_kobject(uint64_t task, mach_port_t port)
     return kobject;
 }
 
+void kcall_kwrite64(uint64_t where, uint64_t what) {
+    kcall(STR_X1_X0_RET, (uint64_t []){ where, what,  }, 2);
+}
+
 int main(void) {
     if (kextrw_init() == -1) {
         printf("Failed to initialize KextRW\n");
@@ -133,6 +130,10 @@ int main(void) {
 
     uint64_t alloc = kalloc(0x100);
     printf("kalloc(0x100) -> 0x%llX\n", alloc);
+    printf("kread64(0x%llX) -> 0x%llX\n", alloc, kread64(alloc));
+    kcall_kwrite64(alloc, 0x4142434445464748);
+    printf("Wrote 0x4142434445464748 to 0x%llX\n", alloc);
+    printf("kread64(0x%llX) -> 0x%llX\n", alloc, kread64(alloc));
     kfree(alloc, 0x100);
 
     uint64_t kbasePA = kvtophys(kernelBase);
